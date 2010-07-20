@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
@@ -25,11 +26,11 @@ namespace PartialViewsPrototype.Controllers
 	        return PartialView(GetModel(v));
 		}
 
-		public ActionResult Submit(int test, bool redirect)
+		public ActionResult Submit(int test)
 		{
             _previousModelStateProvider.Set(this, test);
 
-            if (!redirect)
+            if (_requestBase.AcceptTypes.Any() && _requestBase.AcceptTypes.Contains("application/json"))
                 return Json(GetModel(test));
             else if(IsValid(_requestBase.UrlReferrer))
 		        return Redirect(_requestBase.UrlReferrer.ToString());
@@ -76,7 +77,10 @@ namespace PartialViewsPrototype.Controllers
             object vAsT = null;
 
             if (v != null)
+            {
+                controller.TempData.Remove(controller.GetType().Name); //Getting some odd results due to the way TempData works in MVC2
                 vAsT = Convert.ChangeType(v, typeof (T));
+            }
 
             if (vAsT == null)
                 return default(T);
