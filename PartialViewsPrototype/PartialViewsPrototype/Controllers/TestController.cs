@@ -25,13 +25,13 @@ namespace PartialViewsPrototype.Controllers
 	        return PartialView(GetModel(v));
 		}
 
-		public ActionResult Submit(int test)
+		public ActionResult Submit(int test, bool redirect)
 		{
             _previousModelStateProvider.Set(this, test);
 
-            if (JsonRequest())
-                return PartialView("Index", GetModel(test));
-            if(IsValid(_requestBase.UrlReferrer))
+            if (!redirect)
+                return Json(GetModel(test));
+            else if(IsValid(_requestBase.UrlReferrer))
 		        return Redirect(_requestBase.UrlReferrer.ToString());
             else
                 return new BadRequestResult();
@@ -41,12 +41,7 @@ namespace PartialViewsPrototype.Controllers
 	    {
 	        return new NewsletterViewModel{Value = value, Message = "Default"};
 	    }
-
-	    private bool JsonRequest()
-	    {
-	        return false;
-	    }
-
+        
 	    private bool IsValid(Uri urlReferrer)
 	    {
 	        return true;
@@ -69,7 +64,10 @@ namespace PartialViewsPrototype.Controllers
     {
         public void Set<T>(Controller controller, T value)
         {
-            controller.TempData.Add(controller.GetType().Name, value);
+            if (controller.TempData.ContainsKey(controller.GetType().Name))
+                controller.TempData[controller.GetType().Name] = value;
+            else
+                controller.TempData.Add(controller.GetType().Name, value);
         }
 
         public T Get<T>(Controller controller)

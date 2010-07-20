@@ -2,20 +2,21 @@
 
 <script type="text/javascript">
 
-$(function() {  
-  $(".submit").click(function() {
-      alert('submitting...')
-      $.ajax({
-          type: "POST",
-          url: "/test/Submit",
-          data: "test=2",
-          success: function (msg) {
-              alert('done')
-          }
-      });  
-    return false;
-  });  
-});  
+    $(function () {
+        $(".submit").click(function () {
+            alert('submitting...')
+            $.ajax({
+                type: "POST",
+                url: "/test/Submit",
+                data: "test=2&redirect=false",
+                success: function (msg) {
+                    alert('done');
+                    alert('Message = ' + msg['Message'])
+                }
+            });
+            return false;
+        });
+    });  
 
 </script>
 
@@ -25,5 +26,6 @@ Value returned: <%= Model.Value %>
 
 <form action="/test/Submit" method="post">
     <input type="text" value="2" name="test">
+    <input type="hidden" value="true" name="redirect">
     <input type="submit" value="submit" class="submit" >
 </form>
