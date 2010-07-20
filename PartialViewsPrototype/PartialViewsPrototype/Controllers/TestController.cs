@@ -28,19 +28,34 @@ namespace PartialViewsPrototype.Controllers
 
 		public ActionResult Submit(int test)
 		{
-            _previousModelStateProvider.Set(this, test);
+            if (JsonResult())
+            {
+                var newsletterViewModel = GetModel(test);
+                return Json(newsletterViewModel);
+            }
 
-            if (_requestBase.AcceptTypes.Any() && _requestBase.AcceptTypes.Contains("application/json"))
-                return Json(GetModel(test));
-            else if(IsValid(_requestBase.UrlReferrer))
+		    if (IsValid(_requestBase.UrlReferrer))
+		    {
+		        _previousModelStateProvider.Set(this, test);
 		        return Redirect(_requestBase.UrlReferrer.ToString());
-            else
-                return new BadRequestResult();
+		    }
+
+		    return new BadRequestResult();
 		}
+
+	    private bool JsonResult()
+	    {
+	        return _requestBase.AcceptTypes.Any() && _requestBase.AcceptTypes.Contains("application/json");
+	    }
 
 	    private NewsletterViewModel GetModel(int value)
 	    {
-	        return new NewsletterViewModel{Value = value, Message = "Default"};
+            if(value == 0)
+	            return new DefaultNewsletterViewModel{Value = value};
+            if (value == 1)
+                return new SuccessNewsletterViewModel { Value = value };
+            
+            return new ErrorNewsletterViewModel { Value = value };
 	    }
         
 	    private bool IsValid(Uri urlReferrer)
@@ -49,10 +64,25 @@ namespace PartialViewsPrototype.Controllers
 	    }
 	}
 
-    public class NewsletterViewModel
+    public abstract class NewsletterViewModel
     {
-        public string Message { get; set; }
+        public abstract string Message { get; }
         public int Value { get; set; }
+    }
+
+    public class DefaultNewsletterViewModel : NewsletterViewModel
+    {
+        public override string Message { get { return "Default"; } }        
+    }
+
+    public class SuccessNewsletterViewModel : NewsletterViewModel
+    {
+        public override string Message { get { return "Success"; } }
+    }
+
+    public class ErrorNewsletterViewModel : NewsletterViewModel
+    {
+        public override string Message { get { return "Error"; } }
     }
 
     public interface IPreviousModelStateProvider
