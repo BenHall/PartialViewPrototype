@@ -1,10 +1,10 @@
-<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewPage<System.Int32>" %>
+<%@ Page Language="C#" Inherits="System.Web.Mvc.ViewPage<PartialViewsPrototype.Controllers.NewsletterViewModel>" %>
 
 <h3>Partial View</h3>
-
-Value returned: <%= Model %>
+Message: <%= Model.Message %><br />
+Value returned: <%= Model.Value %>
 
 <form action="/test/Submit" method="post">
-<input type="hidden" value="2" name="test">
-<input type="submit" value="submit">
+    <input type="text" value="2" name="test">
+    <input type="submit" value="submit">
 </form>

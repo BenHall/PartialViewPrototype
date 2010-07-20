@@ -22,24 +22,42 @@ namespace PartialViewsPrototype.Controllers
 
 	    public ActionResult Index() {
 	        var v = _previousModelStateProvider.Get<int>(this);
-	        return PartialView(v);
+	        return PartialView(GetModel(v));
 		}
 
 		public ActionResult Submit(int test)
 		{
             _previousModelStateProvider.Set(this, test);
 
+            if (JsonRequest())
+                return PartialView("Index", GetModel(test));
             if(IsValid(_requestBase.UrlReferrer))
 		        return Redirect(_requestBase.UrlReferrer.ToString());
             else
                 return new BadRequestResult();
 		}
 
+	    private NewsletterViewModel GetModel(int value)
+	    {
+	        return new NewsletterViewModel{Value = value, Message = "Default"};
+	    }
+
+	    private bool JsonRequest()
+	    {
+	        return false;
+	    }
+
 	    private bool IsValid(Uri urlReferrer)
 	    {
 	        return true;
 	    }
 	}
+
+    public class NewsletterViewModel
+    {
+        public string Message { get; set; }
+        public int Value { get; set; }
+    }
 
     public interface IPreviousModelStateProvider
     {
